@@ -1,0 +1,154 @@
+--Createing the Database--
+Create Database Assiment1MichielDB
+	on
+	--Primary file group that will Create The data base in a folder Called Michiel van der merwe Asmt_1 on the network drive--
+	Primary(
+		Name = Asment_1,
+		Filename='\\Vboxsvr\bc\Michiel van der merwe Asmt_1.mdf',
+		Size = 5MB,
+		Maxsize = 2GB,
+		Filegrowth =  1% 
+		),
+	--The secondary File group--
+	Filegroup 
+	Secondary (
+		Name = Sec_Asment_1,
+		Filename = '\\Vboxsvr\bc\Sec_Michiel van der merwe Asmt_1.ndf',
+		Size = 5MB,
+		Maxsize = 2GB,
+		Filegrowth =  1% 
+	)
+	--the activity will be loged on the same location as the primary data file--
+	Log on(
+		Name = Log_Asment_1,
+		Filename = '\\Vboxsvr\bc\Log_Michiel van der merwe Asmt_1',
+		Size = 5MB,
+		Maxsize = 2GB,
+		Filegrowth =  1% 
+);
+Use Assiment1MichielDB;
+--Creating customers table with the coloms and constarnts--
+Create Table Customer(
+			--Primary key--
+			CustomerID Smallint Identity(1,1) Primary key,
+/*The Reason Why I have Chosen the character leght of 40 is because their is a posiblity that the data base can be international and the longste name in the world is 
+is 40 charesters long, see: http://www.worldrecordacademy.com/society/longest_name_Barnaby_Marmaduke_sets_world_record_112063.html
+*/		
+			Firstname Varchar(40) Not Null,
+			MiddleInitials Varchar(40) Not Null,
+			LastName Varchar(40) Not Null,
+
+/*This is  currently the longest Comapany name in the world
+ INCORPORATED AT THE REGISTRY OF COMPANIES IN ENGLAND AND WALES AND ENCOMPASSING THE REG Credit Report
+ See: https://companycheck.co.uk/company/04120480/THIS-IS-THE-COMPANY-WITH-THE-LONGEST-NAME-SO-FAR-INCORPORATED-AT-THE-REGISTRY-OF-COMPANIES-IN-ENGLAND-AND-WALES-AND-ENCOMPASSING-THE-REG/companies-house-data
+ */
+	CompanyName Varchar(40) Not Null,
+
+	EmailAddress Varchar(40) Not Null 
+);
+
+--Creating intermadate table between Customer and Adress--
+Create Table CustomerAdress(
+CustomerID smallint Not Null,
+AdressID smallint Not Null,
+AdressType smallint Not Null,
+--The customerid and the adress type will be a composed key forming the primary key in this table--
+Primary key (CustomerID,AdressID),
+Foreign key (CustomerID) References Customer(CustomerID),   
+Foreign key (AdressID) References Adress(AddressID),
+);
+
+Create Table Adress (
+--AddressID, AddressLine1, AddressLine2, City, StateProvince, CountyRegion, PostalCode,--
+--CountryID--
+AddressID smallint Identity(1,1)
+Primary Key,
+--If a persone stays in a house whit the adress B15 varchar will work better than a int data type--
+AddressLine1 Varchar(10),
+AddressLine2 Varchar(10),
+City Varchar(10),
+StateProvince Varchar(10),
+CountyRegion Varchar(10),
+PostalCode Varchar(10),
+CountryID Smallint,
+Foreign key (CountryID) References Country(CountryID)
+);
+
+Create Table SalesOrderHeader (
+SalesOrderID Smallint Identity(1,1)
+Primary key ,
+RevisionNumber int,
+OrderDate DateTime,
+CustomerID smallint ,
+BillToAddressID smallint,
+ShipToAddressID smallint,
+Foreign key (CustomerID) References Customer (CustomerID),
+ShipMethod Varchar(20),
+Subtotal Decimal ,
+Taxamt Money ,
+Freight Varchar(15),
+);
+
+Create Table SaleOrderDetail
+(
+SaleOrderID Smallint Identity(1,1)
+Primary key,
+SaleOrderDetailID Smallint,
+OrderQty Varchar(40)Not Null,
+ProductID smallint Not Null,
+Foreign key (ProductID) References Product(ProductID),
+UnitPrice money,
+UnitPriceDiscount int,
+);
+
+Create Table Product( 
+ ProductID Smallint Identity(1,1)
+ Primary key ,
+ Name Varchar(15) Not Null,
+ Colour VarChar(15) Not Null,
+ ListPrice Money,
+ Size int ,
+ P_Weight int,
+ ProductModelID smallint
+ Foreign Key (ProductModelID) References ProductModel(ProductModelID),
+ ProductCategoryID smallint 
+  Foreign Key (ProductCategoryID) References ProductCategory(ProductCategoryID),
+);
+
+Create Table ProductModel(
+ProductModelID smallint Identity(1,1)
+Primary key,
+Name VarChar(10),
+);
+
+Create Table ProductCategory
+(
+ProductCategoryID smallint Identity(1,1)
+Primary Key,
+[ParentProductCategoryID Name] Varchar(20),
+);
+
+Create Table ProductModelProductDescription
+(
+ProductModelID smallint Identity(1,1)
+Primary Key,
+ProductDescriptionID smallint,
+Foreign Key (ProductModelID) References ProductDescription(ProductModelID),
+Culture VarChar(20),
+);
+
+Create Table ProductDescription(
+ProductDescriptionID smallint Identity(1,1)
+Primary Key,
+Descriptions VArchar(40)
+);
+
+Create table Country(
+CountryID Smallint Identity(1,1)
+Primary Key,
+Name Varchar(20),
+Continent Varchar(20),
+Area Varchar(20),
+C_Population Varchar(20),
+GDP VArchar(20),
+);
